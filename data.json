@@ -1,0 +1,120 @@
+{
+  "topics": [
+    {
+      "id": "tran-hung-dao",
+      "name": "Trần Hưng Đạo",
+      "category": "person",
+      "description": "Danh tướng nhà Trần, gắn với các chiến thắng chống quân Nguyên Mông."
+    },
+    {
+      "id": "hai-ba-trung",
+      "name": "Hai Bà Trưng",
+      "category": "person",
+      "description": "Hai nữ anh hùng lãnh đạo cuộc khởi nghĩa chống Đông Hán."
+    },
+    {
+      "id": "dien-bien-phu",
+      "name": "Điện Biên Phủ",
+      "category": "battle",
+      "description": "Chiến thắng lịch sử năm 1954."
+    },
+    {
+      "id": "bach-dang",
+      "name": "Bạch Đằng",
+      "category": "battle",
+      "description": "Dòng sông gắn với nhiều chiến thắng quân sự trong lịch sử Việt Nam."
+    },
+    {
+      "id": "nguyen-hue",
+      "name": "Nguyễn Huệ",
+      "category": "person",
+      "description": "Hoàng đế Quang Trung, lãnh tụ phong trào Tây Sơn."
+    }
+  ],
+  "places": [
+    {
+      "id": "kiep-bac",
+      "topicIds": ["tran-hung-dao"],
+      "name": "Đền Kiếp Bạc",
+      "address": "Chí Linh, Hải Dương",
+      "latitude": 21.1645,
+      "longitude": 106.3842,
+      "placeType": "temple",
+      "description": "Khu di tích gắn với Hưng Đạo Đại Vương Trần Quốc Tuấn.",
+      "googleMapsUrl": "",
+      "note": "Dữ liệu mẫu, cần xác minh thêm."
+    },
+    {
+      "id": "tuong-tran-hung-dao-hcm",
+      "topicIds": ["tran-hung-dao"],
+      "name": "Tượng đài Trần Hưng Đạo TP.HCM",
+      "address": "Công trường Mê Linh, Quận 1, TP.HCM",
+      "latitude": 10.7768,
+      "longitude": 106.7079,
+      "placeType": "statue",
+      "description": "Tượng đài Trần Hưng Đạo tại khu vực Bến Bạch Đằng.",
+      "googleMapsUrl": "",
+      "note": "Dữ liệu mẫu."
+    },
+    {
+      "id": "den-hai-ba-trung-ha-noi",
+      "topicIds": ["hai-ba-trung"],
+      "name": "Đền Hai Bà Trưng",
+      "address": "Mê Linh, Hà Nội",
+      "latitude": 21.1628,
+      "longitude": 105.7208,
+      "placeType": "temple",
+      "description": "Địa điểm thờ Hai Bà Trưng tại Mê Linh.",
+      "googleMapsUrl": "",
+      "note": "Dữ liệu mẫu."
+    },
+    {
+      "id": "bao-tang-dien-bien-phu",
+      "topicIds": ["dien-bien-phu"],
+      "name": "Bảo tàng Chiến thắng Điện Biên Phủ",
+      "address": "TP. Điện Biên Phủ, Điện Biên",
+      "latitude": 21.3866,
+      "longitude": 103.0167,
+      "placeType": "museum",
+      "description": "Bảo tàng trưng bày tư liệu về chiến dịch Điện Biên Phủ.",
+      "googleMapsUrl": "",
+      "note": "Dữ liệu mẫu."
+    },
+    {
+      "id": "doi-a1",
+      "topicIds": ["dien-bien-phu"],
+      "name": "Đồi A1",
+      "address": "TP. Điện Biên Phủ, Điện Biên",
+      "latitude": 21.3851,
+      "longitude": 103.0164,
+      "placeType": "battlefield",
+      "description": "Một cứ điểm quan trọng trong chiến dịch Điện Biên Phủ.",
+      "googleMapsUrl": "",
+      "note": "Dữ liệu mẫu."
+    },
+    {
+      "id": "bach-dang-giang",
+      "topicIds": ["bach-dang", "tran-hung-dao"],
+      "name": "Khu di tích Bạch Đằng Giang",
+      "address": "Thủy Nguyên, Hải Phòng",
+      "latitude": 20.9878,
+      "longitude": 106.7553,
+      "placeType": "relic",
+      "description": "Khu di tích gắn với chiến thắng Bạch Đằng.",
+      "googleMapsUrl": "",
+      "note": "Dữ liệu mẫu."
+    },
+    {
+      "id": "bao-tang-quang-trung",
+      "topicIds": ["nguyen-hue"],
+      "name": "Bảo tàng Quang Trung",
+      "address": "Tây Sơn, Bình Định",
+      "latitude": 13.9477,
+      "longitude": 108.8836,
+      "placeType": "museum",
+      "description": "Bảo tàng gắn với phong trào Tây Sơn và Hoàng đế Quang Trung.",
+      "googleMapsUrl": "",
+      "note": "Dữ liệu mẫu."
+    }
+  ]
+}
