@@ -210,13 +210,46 @@ function renderMarkers(list) {
   list.forEach((place) => {
     const marker = L.marker([place.latitude, place.longitude], {
       icon: createLeafletIcon(getTypeIconUrl(place.placeType)),
+      draggable: true,
+      autoPan: true,
     })
-      .bindPopup(`<b>${escapeHtml(place.name)}</b><br>${escapeHtml(place.address)}`)
-      .on("click", () => selectPlace(place.id, false));
+      .bindPopup(`<b>${escapeHtml(place.name)}</b><br>${escapeHtml(place.address)}<br><small>Nhấn giữ marker để kéo sang tọa độ mới.</small>`)
+      .on("click", () => selectPlace(place.id, false))
+      .on("dragstart", () => {
+        selectedPlaceId = place.id;
+        flashMapMessage(`Đang di chuyển: ${place.name}`);
+      })
+      .on("dragend", (event) => saveDraggedPlaceCoordinates(place.id, event.target.getLatLng()));
     marker.addTo(markersLayer);
     bounds.push([place.latitude, place.longitude]);
   });
   if (bounds.length) map.fitBounds(bounds, { padding: [40, 40], maxZoom: 13 });
+}
+
+function saveDraggedPlaceCoordinates(placeId, latlng) {
+  const place = places.find((item) => item.id === placeId);
+  if (!place) return;
+
+  place.latitude = Number(formatCoord(latlng.lat));
+  place.longitude = Number(formatCoord(latlng.lng));
+  place.updatedAt = new Date().toISOString();
+  selectedPlaceId = place.id;
+
+  persist();
+  renderPlaces(getFilteredPlaces());
+  renderDetail(place);
+  flashMapMessage(`Đã lưu tọa độ mới lúc ${formatTime(place.updatedAt)}`);
+  console.log(`Địa điểm "${place.name}" đã cập nhật tọa độ lúc ${formatTime(place.updatedAt)}`);
+}
+
+function flashMapMessage(message) {
+  if (!els.mapHint) return;
+  els.mapHint.textContent = message;
+  els.mapHint.classList.remove("hidden");
+  window.clearTimeout(flashMapMessage.timer);
+  flashMapMessage.timer = window.setTimeout(() => {
+    if (!coordinatePickMode) els.mapHint.classList.add("hidden");
+  }, 2200);
 }
 
 function selectPlace(id, zoom) {
