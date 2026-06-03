@@ -25,6 +25,7 @@ const els = {
   mapHint: document.querySelector("#mapHint"),
   searchInput: document.querySelector("#searchInput"),
   typeFilter: document.querySelector("#typeFilter"),
+  topicSelectVisual: document.querySelector("#topicSelectVisual"),
   resetBtn: document.querySelector("#resetBtn"),
   addPlaceBtn: document.querySelector("#addPlaceBtn"),
   manageTopicsBtn: document.querySelector("#manageTopicsBtn"),
@@ -106,6 +107,12 @@ function initMap() {
 function bindEvents() {
   els.searchInput.addEventListener("input", renderAll);
   els.typeFilter.addEventListener("change", renderAll);
+  els.topicSelectVisual.addEventListener("change", () => {
+    activeTopicId = els.topicSelectVisual.value || "all";
+    selectedPlaceId = null;
+    els.detailPanel.classList.add("hidden");
+    renderAll();
+  });
   els.resetBtn.addEventListener("click", resetFilters);
   els.addPlaceBtn.addEventListener("click", () => openPlaceForm());
   els.quickAddTopicBtn.addEventListener("click", () => openTopicForm());
@@ -135,6 +142,7 @@ function resetFilters() {
   activeTopicId = "all";
   els.searchInput.value = "";
   els.typeFilter.value = "all";
+  if (els.topicSelectVisual) els.topicSelectVisual.value = "all";
   selectedPlaceId = null;
   els.detailPanel.classList.add("hidden");
   renderAll();
@@ -143,6 +151,7 @@ function resetFilters() {
 function renderAll() {
   renderTypeOptions();
   renderTopicOptions();
+  renderTopicFilterSelect();
   renderTopics();
   const filtered = getFilteredPlaces();
   renderPlaces(filtered);
@@ -162,6 +171,7 @@ function makeTopicButton(topic) {
   btn.textContent = topic.name;
   btn.addEventListener("click", () => {
     activeTopicId = topic.id;
+    if (els.topicSelectVisual) els.topicSelectVisual.value = activeTopicId;
     selectedPlaceId = null;
     els.detailPanel.classList.add("hidden");
     renderAll();
@@ -262,22 +272,31 @@ function selectPlace(id, zoom) {
 
 function renderDetail(place) {
   const googleUrl = place.googleMapsUrl || `https://www.google.com/maps/search/?api=1&query=${place.latitude},${place.longitude}`;
+  const topicText = (place.topicIds || []).map(getTopicName).map(escapeHtml).join(", ") || "Chưa có";
+  const typeIconUrl = getTypeIconUrl(place.placeType);
   els.detailPanel.innerHTML = `
-    <h2>${escapeHtml(place.name)}</h2>
-    <p><b>Địa chỉ:</b> ${escapeHtml(place.address)}</p>
-    <p><b>Chủ đề:</b> ${(place.topicIds || []).map(getTopicName).map(escapeHtml).join(", ") || "Chưa có"}</p>
-    <p><b>Loại:</b> <img class="tag-icon" src="${escapeAttr(getTypeIconUrl(place.placeType))}" alt="" /> ${escapeHtml(getTypeLabel(place.placeType))}</p>
-    <p><b>Mô tả:</b> ${escapeHtml(place.description || "Chưa có mô tả")}</p>
-    <p><b>Tọa độ:</b> ${formatCoord(place.latitude)}, ${formatCoord(place.longitude)}</p>
-    ${place.note ? `<p><b>Ghi chú:</b> ${escapeHtml(place.note)}</p>` : ""}
-    <p class="updated-time"><b>Cập nhật lần cuối:</b> ${formatTime(place.updatedAt)}</p>
+    <div class="detail-title-row">
+      <img class="detail-icon" src="${escapeAttr(typeIconUrl)}" alt="" />
+      <div>
+        <h2>${escapeHtml(place.name)}</h2>
+        <p class="detail-subtitle">${escapeHtml(getTypeLabel(place.placeType))}</p>
+      </div>
+    </div>
+    <div class="detail-info-grid">
+      <p><b>Địa chỉ</b><span>${escapeHtml(place.address)}</span></p>
+      <p><b>Chủ đề</b><span>${topicText}</span></p>
+      <p><b>Tọa độ</b><span>${formatCoord(place.latitude)}, ${formatCoord(place.longitude)}</span></p>
+      <p><b>Cập nhật</b><span>${formatTime(place.updatedAt)}</span></p>
+    </div>
+    ${place.description ? `<p class="detail-description">${escapeHtml(place.description)}</p>` : ""}
+    ${place.note ? `<p class="detail-description"><b>Ghi chú:</b> ${escapeHtml(place.note)}</p>` : ""}
     <div class="print-box">
       <b>Thông tin đã cập nhật</b><br>
       ${escapeHtml(place.name)} · ${formatCoord(place.latitude)}, ${formatCoord(place.longitude)} · ${formatTime(place.updatedAt)}
     </div>
     <div class="detail-actions">
-      <button class="primary-btn" onclick="window.open('${escapeAttr(googleUrl)}', '_blank')">Mở Google Maps</button>
-      <button class="ghost-btn" onclick="openPlaceForm('${place.id}')">Sửa / kéo tọa độ</button>
+      <button class="primary-btn" onclick="window.open('${escapeAttr(googleUrl)}', '_blank')">Google Maps</button>
+      <button class="ghost-btn" onclick="openPlaceForm('${place.id}')">Sửa</button>
       <button class="danger-btn" onclick="deletePlace('${place.id}')">Xoá</button>
       <button class="ghost-btn" onclick="closeDetail()">Đóng</button>
     </div>
@@ -287,6 +306,14 @@ function renderDetail(place) {
 
 function renderTopicOptions() {
   els.placeTopics.innerHTML = topics.map((topic) => `<option value="${escapeAttr(topic.id)}">${escapeHtml(topic.name)}</option>`).join("");
+}
+
+function renderTopicFilterSelect() {
+  if (!els.topicSelectVisual) return;
+  const oldValue = activeTopicId || "all";
+  els.topicSelectVisual.innerHTML = `<option value="all">Tất cả chủ đề</option>` + topics.map((topic) => `<option value="${escapeAttr(topic.id)}">${escapeHtml(topic.name)}</option>`).join("");
+  activeTopicId = topics.some((topic) => topic.id === oldValue) ? oldValue : "all";
+  els.topicSelectVisual.value = activeTopicId;
 }
 
 function renderTypeOptions() {
