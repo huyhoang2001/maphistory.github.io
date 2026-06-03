@@ -826,9 +826,9 @@ function getDefaultIconUrlForType(id) {
 function createLeafletIcon(iconUrl, editing = false) {
   return L.icon({
     iconUrl: iconUrl || "img/icons/default.svg",
-    iconSize: editing ? [42, 42] : [34, 34],
-    iconAnchor: editing ? [21, 42] : [17, 34],
-    popupAnchor: [0, -30],
+    iconSize: editing ? [30, 30] : [24, 24],
+    iconAnchor: editing ? [15, 30] : [12, 24],
+    popupAnchor: [0, -22],
     className: editing ? "editing-marker" : "",
   });
 }
