@@ -8,114 +8,101 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-
-  <!-- ══ HEADER ══════════════════════════════════════ -->
-  <header class="app-header">
-    <div class="header-brand">
-      <div class="header-logo">🗺️</div>
-      <div class="header-text">
-        <p class="eyebrow">Historical Map MVP</p>
-        <h1>Địa điểm lịch sử Việt Nam</h1>
-      </div>
-    </div>
-    <div class="header-actions">
-      <button id="manageTopicsBtn" class="ghost-light-btn">Chủ đề</button>
-      <button id="manageTypesBtn" class="ghost-light-btn">Loại địa điểm</button>
-      <button id="manageIconsBtn" class="ghost-light-btn">Icon</button>
-      <button id="addPlaceBtn" class="primary-btn">＋ Thêm địa điểm</button>
-    </div>
-  </header>
-
-  <!-- ══ MAIN LAYOUT ══════════════════════════════════ -->
-  <main class="layout">
-
-    <!-- ── Sidebar ───────────────────────────── -->
+  <main class="app-shell">
     <aside class="sidebar">
-      <div class="sidebar-scroll">
-
-        <!-- Topics -->
-        <div class="panel">
-          <div class="panel-header">
-            <span class="panel-title">Chủ đề lịch sử</span>
-            <button id="quickAddTopicBtn" class="tiny-btn">＋ Thêm</button>
-          </div>
-          <div id="topicList" class="topic-list"></div>
-        </div>
-
-        <!-- Search & Filter -->
-        <div class="panel">
-          <div class="panel-header" style="margin-bottom:10px">
-            <span class="panel-title">Tìm kiếm &amp; Lọc</span>
-          </div>
-          <div class="search-wrap" style="margin-bottom:8px">
-            <span class="search-icon">🔍</span>
-            <input id="searchInput" type="search" placeholder="Tìm địa điểm, nhân vật, địa chỉ..." />
-          </div>
-          <select id="typeFilter"></select>
-        </div>
-
-        <!-- Place List -->
-        <div class="panel" style="flex:1">
-          <div class="panel-header">
-            <span class="panel-title">Địa điểm</span>
-            <button id="resetBtn" class="tiny-btn">Hiện tất cả</button>
-          </div>
-          <div id="placeList" class="place-list"></div>
-        </div>
-
+      <div class="sidebar-topbar">
+        <button class="round-icon" type="button" aria-label="Quay lại">‹</button>
+        <strong>Historical Maps</strong>
+        <button class="round-icon" type="button" aria-label="Trợ giúp">?</button>
       </div>
+
+      <section class="search-card">
+        <div class="search-wrap">
+          <span>⌕</span>
+          <input id="searchInput" type="search" placeholder="Search..." />
+        </div>
+      </section>
+
+      <section class="filter-strip">
+        <label>Show Me
+          <select id="typeFilter"></select>
+        </label>
+        <label>Topic
+          <select id="topicSelectVisual" disabled>
+            <option>Chọn bằng thẻ</option>
+          </select>
+        </label>
+        <button id="resetBtn" class="filter-icon" type="button" title="Hiện tất cả">⌁</button>
+      </section>
+
+      <section class="topic-section">
+        <div class="section-title compact-title">
+          <span>Chủ đề</span>
+          <button id="quickAddTopicBtn" class="tiny-btn">+ Thêm</button>
+        </div>
+        <div id="topicList" class="topic-list"></div>
+      </section>
+
+      <section class="admin-actions">
+        <button id="manageTopicsBtn" class="ghost-btn">Chủ đề</button>
+        <button id="manageTypesBtn" class="ghost-btn">Loại</button>
+        <button id="manageIconsBtn" class="ghost-btn">Icon</button>
+        <button id="addPlaceBtn" class="primary-btn">+ Địa điểm</button>
+      </section>
+
+      <section class="places-panel">
+        <div class="section-title compact-title">
+          <span>Địa điểm đã đánh dấu</span>
+        </div>
+        <div id="placeList" class="place-list"></div>
+      </section>
     </aside>
 
-    <!-- ── Map ───────────────────────────────── -->
     <section class="map-area">
       <div id="map"></div>
+      <button class="use-location-btn" type="button">⌖ Use My Location</button>
       <div id="mapHint" class="map-hint hidden">Click lên bản đồ để chọn tọa độ.</div>
       <div id="detailPanel" class="detail-panel hidden"></div>
     </section>
-
   </main>
 
-  <!-- ══ PLACE DIALOG ═════════════════════════════════ -->
   <dialog id="placeDialog">
     <form id="placeForm" class="modal-form">
       <div class="modal-header">
         <h2 id="placeFormTitle">Thêm địa điểm</h2>
         <button type="button" data-close="placeDialog" class="icon-btn">×</button>
       </div>
-
       <input type="hidden" id="placeId" />
-      <label>Tên địa điểm <input id="placeName" required placeholder="Ví dụ: Đền Kiếp Bạc" /></label>
+      <label>Tên địa điểm <input id="placeName" required /></label>
       <label>Chủ đề liên quan <select id="placeTopics" multiple required></select></label>
       <label>Loại địa điểm <select id="placeType" required></select></label>
-      <label>Địa chỉ <input id="placeAddress" required placeholder="Ví dụ: Chí Linh, Hải Dương" /></label>
+      <label>Địa chỉ <input id="placeAddress" required /></label>
 
       <div class="coordinate-box">
         <div class="coordinate-head">
           <div>
-            <strong style="font-size:13px;color:var(--ink-mid)">Tọa độ</strong>
+            <b>Tọa độ</b>
             <p>Nhập thủ công, click bản đồ hoặc kéo marker đang sửa.</p>
           </div>
-          <button type="button" id="pickCoordinateBtn" class="ghost-btn">📍 Chọn trên bản đồ</button>
+          <button type="button" id="pickCoordinateBtn" class="ghost-btn">Chọn trên bản đồ</button>
         </div>
         <div class="form-grid">
           <label>Latitude <input id="placeLat" type="number" step="any" min="-90" max="90" required /></label>
           <label>Longitude <input id="placeLng" type="number" step="any" min="-180" max="180" required /></label>
         </div>
-        <p id="coordinateNotice" class="hint hidden">✅ Tọa độ đã thay đổi. Bấm "Lưu địa điểm" để cập nhật.</p>
+        <p id="coordinateNotice" class="hint hidden">Tọa độ đã thay đổi. Bấm “Lưu địa điểm” để cập nhật.</p>
       </div>
 
       <label>Google Maps URL <input id="placeGoogleUrl" placeholder="Không bắt buộc" /></label>
-      <label>Mô tả <textarea id="placeDescription" rows="3" placeholder="Mô tả ngắn về địa điểm này..."></textarea></label>
-      <label>Ghi chú <textarea id="placeNote" rows="2" placeholder="Ghi chú thêm..."></textarea></label>
-
+      <label>Mô tả <textarea id="placeDescription" rows="3"></textarea></label>
+      <label>Ghi chú <textarea id="placeNote" rows="2"></textarea></label>
       <div class="modal-actions">
         <button type="button" data-close="placeDialog" class="ghost-btn">Huỷ</button>
-        <button type="submit" class="primary-btn">💾 Lưu địa điểm</button>
+        <button type="submit" class="primary-btn">Lưu địa điểm</button>
       </div>
     </form>
   </dialog>
 
-  <!-- ══ TOPIC DIALOG ═════════════════════════════════ -->
   <dialog id="topicDialog">
     <form id="topicForm" class="modal-form small-form">
       <div class="modal-header">
@@ -126,22 +113,21 @@
       <label>Tên chủ đề <input id="topicName" required placeholder="Ví dụ: Trần Hưng Đạo" /></label>
       <label>Nhóm chủ đề
         <select id="topicCategory">
-          <option value="person">👤 Nhân vật</option>
-          <option value="event">📅 Sự kiện</option>
-          <option value="battle">⚔️ Trận chiến</option>
-          <option value="dynasty">🏯 Triều đại</option>
-          <option value="other">📌 Khác</option>
+          <option value="person">Nhân vật</option>
+          <option value="event">Sự kiện</option>
+          <option value="battle">Trận chiến</option>
+          <option value="dynasty">Triều đại</option>
+          <option value="other">Khác</option>
         </select>
       </label>
-      <label>Mô tả <textarea id="topicDescription" rows="3" placeholder="Mô tả ngắn về chủ đề này..."></textarea></label>
+      <label>Mô tả <textarea id="topicDescription" rows="3"></textarea></label>
       <div class="modal-actions">
         <button type="button" data-close="topicDialog" class="ghost-btn">Huỷ</button>
-        <button type="submit" class="primary-btn">💾 Lưu chủ đề</button>
+        <button type="submit" class="primary-btn">Lưu chủ đề</button>
       </div>
     </form>
   </dialog>
 
-  <!-- ══ TYPE DIALOG ══════════════════════════════════ -->
   <dialog id="typeDialog">
     <form id="typeForm" class="modal-form small-form">
       <div class="modal-header">
@@ -158,10 +144,10 @@
           <label class="grow">Icon của loại địa điểm
             <select id="typeIconSelect" required></select>
           </label>
-          <button type="button" id="typeOpenIconManagerBtn" class="ghost-btn" style="align-self:flex-end">Quản lý icon</button>
+          <button type="button" id="typeOpenIconManagerBtn" class="ghost-btn">Quản lý icon</button>
         </div>
         <div class="icon-preview-row">
-          <span style="font-size:13px;color:var(--ink-light)">Preview:</span>
+          <span>Preview:</span>
           <img id="typeIconPreview" class="icon-preview" alt="Icon preview" />
           <span id="typeIconName" class="hint"></span>
         </div>
@@ -169,12 +155,11 @@
 
       <div class="modal-actions">
         <button type="button" data-close="typeDialog" class="ghost-btn">Huỷ</button>
-        <button type="submit" class="primary-btn">💾 Lưu loại</button>
+        <button type="submit" class="primary-btn">Lưu loại</button>
       </div>
     </form>
   </dialog>
 
-  <!-- ══ ICON DIALOG ══════════════════════════════════ -->
   <dialog id="iconDialog">
     <form id="iconForm" class="modal-form small-form">
       <div class="modal-header">
@@ -186,20 +171,19 @@
       <label>File icon
         <input id="iconFile" type="file" accept=".png,.jpg,.jpeg,.svg,.ico,.webp,image/png,image/jpeg,image/svg+xml,image/x-icon,image/webp" />
       </label>
-      <p class="hint">Hỗ trợ PNG, JPG, JPEG, SVG, ICO, WEBP · Tối đa 300KB · Lưu dạng base64 trong localStorage.</p>
+      <p class="hint">Hỗ trợ PNG, JPG, JPEG, SVG, ICO, WEBP. Tối đa 300KB. Bản HTML thuần sẽ lưu file upload dạng base64 trong localStorage.</p>
       <div class="icon-preview-row">
-        <span style="font-size:13px;color:var(--ink-light)">Preview:</span>
+        <span>Preview:</span>
         <img id="iconPreview" class="icon-preview" alt="Icon preview" />
         <span id="iconFileInfo" class="hint"></span>
       </div>
       <div class="modal-actions">
         <button type="button" data-close="iconDialog" class="ghost-btn">Huỷ</button>
-        <button type="submit" class="primary-btn">💾 Lưu icon</button>
+        <button type="submit" class="primary-btn">Lưu icon</button>
       </div>
     </form>
   </dialog>
 
-  <!-- ══ MANAGER DIALOG ═══════════════════════════════ -->
   <dialog id="managerDialog">
     <div class="manager modal-form">
       <div class="modal-header">

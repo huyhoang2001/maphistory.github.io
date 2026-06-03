@@ -158,7 +158,7 @@ function renderTopics() {
 
 function makeTopicButton(topic) {
   const btn = document.createElement("button");
-  btn.className = `topic-chip ${activeTopicId === topic.id ? "active" : ""}`;
+  btn.className = `topic-card ${activeTopicId === topic.id ? "active" : ""}`;
   btn.textContent = topic.name;
   btn.addEventListener("click", () => {
     activeTopicId = topic.id;
@@ -191,15 +191,13 @@ function renderPlaces(list) {
   }
   list.forEach((place) => {
     const card = document.createElement("article");
-    card.className = `place-card${selectedPlaceId === place.id ? " selected" : ""}`;
+    card.className = "place-card";
     const iconUrl = getTypeIconUrl(place.placeType);
     card.innerHTML = `
       <h3>${escapeHtml(place.name)}</h3>
-      <p class="place-address">📍 ${escapeHtml(place.address)}</p>
-      <div class="place-card-footer">
-        <span class="tag"><img class="tag-icon" src="${escapeAttr(iconUrl)}" alt="" />${escapeHtml(getTypeLabel(place.placeType))}</span>
-        <span class="updated-time">${formatTime(place.updatedAt)}</span>
-      </div>
+      <p>${escapeHtml(place.address)}</p>
+      <span class="tag"><img class="tag-icon" src="${escapeAttr(iconUrl)}" alt="" />${escapeHtml(getTypeLabel(place.placeType))}</span>
+      <p class="updated-time">Cập nhật: ${formatTime(place.updatedAt)}</p>
     `;
     card.addEventListener("click", () => selectPlace(place.id, true));
     els.placeList.appendChild(card);
@@ -264,40 +262,24 @@ function selectPlace(id, zoom) {
 
 function renderDetail(place) {
   const googleUrl = place.googleMapsUrl || `https://www.google.com/maps/search/?api=1&query=${place.latitude},${place.longitude}`;
-  const topics = (place.topicIds || []).map(getTopicName).map(escapeHtml).join(", ") || "Chưa có";
   els.detailPanel.innerHTML = `
-    <div class="detail-header">
-      <h2>${escapeHtml(place.name)}</h2>
-      <button class="detail-close" onclick="closeDetail()">×</button>
+    <h2>${escapeHtml(place.name)}</h2>
+    <p><b>Địa chỉ:</b> ${escapeHtml(place.address)}</p>
+    <p><b>Chủ đề:</b> ${(place.topicIds || []).map(getTopicName).map(escapeHtml).join(", ") || "Chưa có"}</p>
+    <p><b>Loại:</b> <img class="tag-icon" src="${escapeAttr(getTypeIconUrl(place.placeType))}" alt="" /> ${escapeHtml(getTypeLabel(place.placeType))}</p>
+    <p><b>Mô tả:</b> ${escapeHtml(place.description || "Chưa có mô tả")}</p>
+    <p><b>Tọa độ:</b> ${formatCoord(place.latitude)}, ${formatCoord(place.longitude)}</p>
+    ${place.note ? `<p><b>Ghi chú:</b> ${escapeHtml(place.note)}</p>` : ""}
+    <p class="updated-time"><b>Cập nhật lần cuối:</b> ${formatTime(place.updatedAt)}</p>
+    <div class="print-box">
+      <b>Thông tin đã cập nhật</b><br>
+      ${escapeHtml(place.name)} · ${formatCoord(place.latitude)}, ${formatCoord(place.longitude)} · ${formatTime(place.updatedAt)}
     </div>
-    <div class="detail-body">
-      <div class="detail-row">
-        <span class="detail-label">📍 Địa chỉ</span>
-        <span class="detail-value">${escapeHtml(place.address)}</span>
-      </div>
-      <div class="detail-row">
-        <span class="detail-label">🏷 Chủ đề</span>
-        <span class="detail-value">${topics}</span>
-      </div>
-      <div class="detail-row">
-        <span class="detail-label">🗂 Loại</span>
-        <span class="detail-value"><img class="tag-icon" src="${escapeAttr(getTypeIconUrl(place.placeType))}" alt="" style="vertical-align:middle;margin-right:4px" />${escapeHtml(getTypeLabel(place.placeType))}</span>
-      </div>
-      <div class="detail-divider"></div>
-      <div class="detail-row">
-        <span class="detail-label">📖 Mô tả</span>
-        <span class="detail-value">${escapeHtml(place.description || "Chưa có mô tả")}</span>
-      </div>
-      ${place.note ? `<div class="detail-row"><span class="detail-label">📝 Ghi chú</span><span class="detail-value">${escapeHtml(place.note)}</span></div>` : ""}
-      <div class="detail-divider"></div>
-      <div class="print-box">
-        🧭 ${formatCoord(place.latitude)}, ${formatCoord(place.longitude)} · ⏱ ${formatTime(place.updatedAt)}
-      </div>
-      <div class="detail-actions">
-        <button class="primary-btn" onclick="window.open('${escapeAttr(googleUrl)}', '_blank')">🗺 Google Maps</button>
-        <button class="ghost-btn" onclick="openPlaceForm('${place.id}')">✏️ Sửa</button>
-        <button class="danger-btn" onclick="deletePlace('${place.id}')">🗑 Xoá</button>
-      </div>
+    <div class="detail-actions">
+      <button class="primary-btn" onclick="window.open('${escapeAttr(googleUrl)}', '_blank')">Mở Google Maps</button>
+      <button class="ghost-btn" onclick="openPlaceForm('${place.id}')">Sửa / kéo tọa độ</button>
+      <button class="danger-btn" onclick="deletePlace('${place.id}')">Xoá</button>
+      <button class="ghost-btn" onclick="closeDetail()">Đóng</button>
     </div>
   `;
   els.detailPanel.classList.remove("hidden");
