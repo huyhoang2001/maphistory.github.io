@@ -13,6 +13,7 @@ let managerMode = "topics";
 let map;
 let markersLayer;
 let editMarker = null;
+let editMarkerOriginalLatLng = null;
 let coordinatePickMode = false;
 let pendingIconDataUrl = "";
 let pendingIconFileName = "";
@@ -218,22 +219,54 @@ function renderMarkers(list) {
   markersLayer.clearLayers();
   const bounds = [];
   list.forEach((place) => {
+    let originalLatLng = L.latLng(place.latitude, place.longitude);
     const marker = L.marker([place.latitude, place.longitude], {
       icon: createLeafletIcon(getTypeIconUrl(place.placeType)),
       draggable: true,
       autoPan: true,
     })
-      .bindPopup(`<b>${escapeHtml(place.name)}</b><br>${escapeHtml(place.address)}<br><small>Nhấn giữ marker để kéo sang tọa độ mới.</small>`)
+      .bindPopup(`<b>${escapeHtml(place.name)}</b><br>${escapeHtml(place.address)}<br><small>Nhấn giữ marker để kéo. Sau khi thả, hệ thống sẽ hỏi trước khi lưu tọa độ mới.</small>`)
       .on("click", () => selectPlace(place.id, false))
-      .on("dragstart", () => {
+      .on("dragstart", (event) => {
         selectedPlaceId = place.id;
+        originalLatLng = event.target.getLatLng();
         flashMapMessage(`Đang di chuyển: ${place.name}`);
       })
-      .on("dragend", (event) => saveDraggedPlaceCoordinates(place.id, event.target.getLatLng()));
+      .on("dragend", (event) => confirmDraggedPlaceCoordinates(place.id, event.target, originalLatLng));
     marker.addTo(markersLayer);
     bounds.push([place.latitude, place.longitude]);
   });
   if (bounds.length) map.fitBounds(bounds, { padding: [40, 40], maxZoom: 13 });
+}
+
+function confirmDraggedPlaceCoordinates(placeId, marker, originalLatLng) {
+  const place = places.find((item) => item.id === placeId);
+  if (!place) return;
+
+  const newLatLng = marker.getLatLng();
+  const newLat = Number(formatCoord(newLatLng.lat));
+  const newLng = Number(formatCoord(newLatLng.lng));
+  const oldLat = Number(formatCoord(originalLatLng.lat));
+  const oldLng = Number(formatCoord(originalLatLng.lng));
+
+  if (newLat === oldLat && newLng === oldLng) {
+    flashMapMessage("Tọa độ không thay đổi.");
+    return;
+  }
+
+  const shouldSave = window.confirm(
+    `Bạn có muốn lưu tọa độ mới cho "${place.name}" không?\n\n` +
+    `Tọa độ cũ: ${oldLat}, ${oldLng}\n` +
+    `Tọa độ mới: ${newLat}, ${newLng}`
+  );
+
+  if (!shouldSave) {
+    marker.setLatLng(originalLatLng);
+    flashMapMessage("Đã hủy. Marker đã quay lại tọa độ cũ.");
+    return;
+  }
+
+  saveDraggedPlaceCoordinates(place.id, newLatLng);
 }
 
 function saveDraggedPlaceCoordinates(placeId, latlng) {
@@ -423,11 +456,42 @@ function createOrMoveEditMarker(lat, lng, typeId = els.placeType.value) {
   const icon = createLeafletIcon(getTypeIconUrl(typeId), true);
   if (!editMarker) {
     editMarker = L.marker([lat, lng], { draggable: true, icon }).addTo(map);
+    editMarker.on("dragstart", () => {
+      editMarkerOriginalLatLng = editMarker.getLatLng();
+      flashMapMessage("Đang kéo marker. Thả để chọn tọa độ mới.");
+    });
     editMarker.on("dragend", () => {
       const point = editMarker.getLatLng();
+      const oldPoint = editMarkerOriginalLatLng || L.latLng(lat, lng);
+      const newLat = Number(formatCoord(point.lat));
+      const newLng = Number(formatCoord(point.lng));
+      const oldLat = Number(formatCoord(oldPoint.lat));
+      const oldLng = Number(formatCoord(oldPoint.lng));
+
+      if (newLat === oldLat && newLng === oldLng) {
+        flashMapMessage("Tọa độ không thay đổi.");
+        return;
+      }
+
+      const shouldUseNewCoordinate = window.confirm(
+        `Bạn có muốn dùng tọa độ mới này không?\n\n` +
+        `Tọa độ cũ: ${oldLat}, ${oldLng}\n` +
+        `Tọa độ mới: ${newLat}, ${newLng}`
+      );
+
+      if (!shouldUseNewCoordinate) {
+        editMarker.setLatLng(oldPoint);
+        setCoordinateFields(oldPoint.lat, oldPoint.lng);
+        els.coordinateNotice.textContent = "Đã hủy. Marker đã quay lại tọa độ cũ.";
+        els.coordinateNotice.classList.remove("hidden");
+        flashMapMessage("Đã hủy thay đổi tọa độ.");
+        return;
+      }
+
       setCoordinateFields(point.lat, point.lng);
-      els.coordinateNotice.textContent = "Tọa độ đã thay đổi. Bấm “Lưu địa điểm” để cập nhật.";
+      els.coordinateNotice.textContent = "Đã chọn tọa độ mới. Bấm “Lưu địa điểm” để cập nhật.";
       els.coordinateNotice.classList.remove("hidden");
+      flashMapMessage("Đã chọn tọa độ mới. Bấm Lưu địa điểm để cập nhật.");
     });
   } else {
     editMarker.setLatLng([lat, lng]);
